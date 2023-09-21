@@ -19,6 +19,9 @@ class VatRate
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 5, scale: 2)]
+    #[Assert\NotBlank]
+    #[Assert\NotNull]
+    #[Assert\Positive]    
     private ?string $rate = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

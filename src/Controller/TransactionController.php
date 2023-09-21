@@ -13,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Psr\Log\LoggerInterface;
 
 #[Route('/transaction')]
@@ -38,9 +39,7 @@ class TransactionController extends AbstractController
             $vatRateRepository = $entityManager->getRepository(VatRate::class);
             $vatRate = $vatRateRepository->findLatest();
             $latestVatRate = $vatRate->getRate();
-        //    $logger->info($vatRates[0]);
-
-            //$logger->info("latestVatRate: {$latestVatRate}");            
+  
             $VatCalculatorService = new VatCalculatorService();
 
             $transaction->setCreatedAt(new \DateTime());
@@ -55,14 +54,7 @@ class TransactionController extends AbstractController
 
             //caculate amount after VAT is added
             $transactionAmountExVat = $VatCalculatorService->calcAmountExVat($inputAmount,$vatAmountExVat);
-            
-            /*
-            $latestVatRate = $vatRateRepository->findLatest();
-            $latestVatRateId = $latestVatRate->getId();
-            $latestVatRatePercentage = $latestVatRate->getRate();
-            $transactionAmount = $transaction->getAmount();
-            */
-            
+          
             $transaction->setAmountExVat($transactionAmountExVat);
             $transaction->setAmountIncVat($transactionAmountIncVat);
             $transaction->setVatAmountExVat($vatAmountExVat);
@@ -80,7 +72,7 @@ class TransactionController extends AbstractController
             'form' => $form,
         ]);
     }
-
+/*
     #[Route('/{id}', name: 'app_transaction_show', methods: ['GET'])]
     public function show(Transaction $transaction): Response
     {
@@ -88,7 +80,7 @@ class TransactionController extends AbstractController
             'transaction' => $transaction,
         ]);
     }
-
+*/
     #[Route('/{id}/edit', name: 'app_transaction_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Transaction $transaction, EntityManagerInterface $entityManager): Response
     {
@@ -116,5 +108,41 @@ class TransactionController extends AbstractController
         }
 
         return $this->redirectToRoute('app_transaction_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/export', name: 'app_transaction_export', methods: ['GET', 'POST'])]
+    public function export(TransactionRepository $transactionRepository): Response
+    {
+        $response = new StreamedResponse();
+        $response->setCallback(function() use ($transactionRepository)   {
+            $handle = fopen('php://output', 'w+');
+    
+            fputcsv($handle, ['ID', 'Input', 'VAT Rate', 'VAT Included', 'Net', 'VAT Excluded', 'Gross', 'Created Date' ], ',');
+
+            $transactions = $transactionRepository->findAll();
+            foreach ($transactions as $transaction) {
+
+                $vatRate = $transaction->getVatRate();
+                $rate = $vatRate ? $vatRate->getRate() : 'N/A';
+
+                fputcsv($handle, [
+                    $transaction->getId(),
+                    $transaction->getAmount(),
+                    $rate,
+                    $transaction->getVatAmountIncVat(),
+                    $transaction->getAmountIncVat(),
+                    $transaction->getVatAmountExVat(),
+                    $transaction->getAmountExVat(),
+                    $transaction->getCreatedAt()->format('Y-m-d H:i:s')
+                ], ',');
+            }
+            fclose($handle);
+        });
+
+        $response->setStatusCode(200);
+        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
+        $response->headers->set('Content-Disposition', 'attachment; filename="transactions.csv"');        
+    
+        return $response;
     }
 }
