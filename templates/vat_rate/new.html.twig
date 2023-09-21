@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New VatRate{% endblock %}
+
+{% block body %}
+    <h1>Create new VatRate</h1>
+
+    {{ include('vat_rate/_form.html.twig') }}
+
+    <a href="{{ path('app_vat_rate_index') }}">back to list</a>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit VatRate{% endblock %}
+
+{% block body %}
+    <h1>Edit VatRate</h1>
+
+    {{ include('vat_rate/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_vat_rate_index') }}">back to list</a>
+
+    {{ include('vat_rate/_delete_form.html.twig') }}
+{% endblock %}

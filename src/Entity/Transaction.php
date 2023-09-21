@@ -7,6 +7,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
+#[ORM\HasLifecycleCallbacks()]
+
 class Transaction
 {
     #[ORM\Id]
@@ -17,14 +19,20 @@ class Transaction
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 4)]
     private ?string $amount = null;
 
-    #[ORM\Column]
-    private ?bool $requires_vat = null;
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 4)]
+    private ?string $vatAmountExVat = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 4)]
-    private ?string $gross = null;
+    private ?string $amountExVat = null;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 4)]
+    private ?string $vatAmountIncVat = null;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 4)]
+    private ?string $amountIncVat = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    private ?\DateTime $createdAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'transaction_id')]
     #[ORM\JoinColumn(nullable: false)]
@@ -47,36 +55,60 @@ class Transaction
         return $this;
     }
 
-    public function isRequiresVat(): ?bool
+    public function getVatAmountExVat(): ?string
     {
-        return $this->requires_vat;
+        return $this->vatAmountExVat;
     }
 
-    public function setRequiresVat(bool $requires_vat): static
+    public function setVatAmountExVat(string $vatAmountExVat): static
     {
-        $this->requires_vat = $requires_vat;
+        $this->vatAmountExVat = $vatAmountExVat;
 
         return $this;
     }
 
-    public function getGross(): ?string
+    public function getAmountExVat(): ?string
     {
-        return $this->gross;
+        return $this->amountExVat;
     }
 
-    public function setGross(string $gross): static
+    public function setAmountExVat(string $amountExVat): static
     {
-        $this->gross = $gross;
+        $this->amountExVat = $amountExVat;
 
         return $this;
     }
+    
+    public function getVatAmountIncVat(): ?string
+    {
+        return $this->vatAmountIncVat;
+    }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function setVatAmountIncVat(string $vatAmountIncVat): static
+    {
+        $this->vatAmountIncVat = $vatAmountIncVat;
+
+        return $this;
+    }
+    
+    public function getAmountIncVat(): ?string
+    {
+        return $this->amountIncVat;
+    }
+
+    public function setAmountIncVat(string $amountIncVat): static
+    {
+        $this->amountIncVat = $amountIncVat;
+
+        return $this;
+    }
+    
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    public function setCreatedAt(?\DateTime $createdAt): static
     {
         $this->createdAt = $createdAt;
 
