@@ -36,17 +36,16 @@ class TransactionController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             
             $vatRateRepository = $entityManager->getRepository(VatRate::class);
-            $vatRates = $vatRateRepository->findAll();
+            $vatRate = $vatRateRepository->findLatest();
+            $latestVatRate = $vatRate->getRate();
         //    $logger->info($vatRates[0]);
 
-            $latestVatRate =$vatRates[0];
             //$logger->info("latestVatRate: {$latestVatRate}");            
             $VatCalculatorService = new VatCalculatorService();
 
             $transaction->setCreatedAt(new \DateTime());
 
             $inputAmount = $transaction->getAmount();
-            $latestVatRate = 0.2;
             // calculate vat for incluse and exclusive amounts
             $vatAmountExVat = $VatCalculatorService->calcVatAmountExVat($inputAmount,$latestVatRate);
             $vatAmountIncVat = $VatCalculatorService->calcVatAmountIncVat($inputAmount,$latestVatRate);
@@ -68,7 +67,7 @@ class TransactionController extends AbstractController
             $transaction->setAmountIncVat($transactionAmountIncVat);
             $transaction->setVatAmountExVat($vatAmountExVat);
             $transaction->setVatAmountIncVat($vatAmountIncVat);
-            $transaction->setVatRate($vatRates[0]);
+            $transaction->setVatRate($vatRate);
 
             $entityManager->persist($transaction);
             $entityManager->flush();

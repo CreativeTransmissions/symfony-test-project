@@ -21,15 +21,18 @@ class VatRateRepository extends ServiceEntityRepository
         parent::__construct($registry, VatRate::class);
     }
 
-    public function findLatest(): ?VatRate
+    public function findLatest() : ?VatRate
     {
-        return $this->createQueryBuilder('v')
-            ->orderBy('v.effective_date', 'DESC')
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
+        $qb = $this->createQueryBuilder('v');
 
+        $qb->select('v')
+           ->where('v.effective_date <= :currentDate')
+           ->setParameter('currentDate', new \DateTime('now'))
+           ->orderBy('v.effective_date', 'DESC')
+           ->setMaxResults(1);
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
 
 //    /**
 //     * @return VatRate[] Returns an array of VatRate objects
