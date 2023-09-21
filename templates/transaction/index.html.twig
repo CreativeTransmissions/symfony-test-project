@@ -10,6 +10,7 @@
             <tr>
                 <th>Id</th>
                 <th>Input</th>
+                <th>VAT Rate (%)</th>
                 <th>VAT Included</th>
                 <th>Net Amount</th>    
                 <th>VAT Excluded</th>
@@ -23,16 +24,17 @@
             <tr>
                 <td>{{ transaction.id }}</td>
 
-                <td>{{ transaction.vatRate->rate }}</td>
 
-                <td>{{ transaction.amount }}</td>
+                <td>{{ transaction.amount  | number_format(2)}}</td>
 
-                <td>{{ transaction.amountIncVat }}</td>
-                <td>{{ transaction.vatAmountIncVat }}</td>
+                <td>{{ transaction.vatRate.rate * 100 | number_format(2) }}</td>
 
-                <td>{{ transaction.vatAmountExVat }}</td>
-                <td>{{ transaction.amountExVat }}</td>
 
+                <td>{{ transaction.amountIncVat | number_format(2) }}</td>
+                <td>{{ transaction.vatAmountIncVat | number_format(2) }}</td>
+
+                <td>{{ transaction.vatAmountExVat | number_format(2) }}</td>
+                <td>{{ transaction.amountExVat | number_format(2)}}</td>
 
                 <td>{{ transaction.createdAt ? transaction.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                 <td>
