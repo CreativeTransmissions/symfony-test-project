@@ -20,8 +20,16 @@ use Psr\Log\LoggerInterface;
 class TransactionController extends AbstractController
 {
     #[Route('/', name: 'app_transaction_index', methods: ['GET'])]
-    public function index(TransactionRepository $transactionRepository): Response
+    public function index(TransactionRepository $transactionRepository, EntityManagerInterface $entityManager): Response
     {
+
+        $vatRateRepository = $entityManager->getRepository(VatRate::class);
+        $vatRate = $vatRateRepository->findLatest();
+        if(!$vatRate) {
+            $this->addFlash('error', 'Please add a VAT rate first');
+            return $this->redirectToRoute('app_vat_rate_new');
+        }
+        
         return $this->render('transaction/index.html.twig', [
             'transactions' => $transactionRepository->findAll(),
         ]);

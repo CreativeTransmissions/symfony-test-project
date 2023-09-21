@@ -3,7 +3,17 @@
 {% block title %}New VatRate{% endblock %}
 
 {% block body %}
-    <h1>Create new VatRate</h1>
+    <h1>Create new VAT Rate</h1>
+
+    {% for label, messages in app.flashes %}
+        {% set bootstrapClass = label == 'error' ? 'danger' : label %}
+        <div class="alert alert-{{ bootstrapClass }}">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endfor %}
+
 
     {{ include('vat_rate/_form.html.twig') }}
 

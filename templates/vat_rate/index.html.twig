@@ -3,13 +3,13 @@
 {% block title %}VatRate index{% endblock %}
 
 {% block body %}
-    <h1>VatRate index</h1>
+    <h1>VAT Rates</h1>
 
     <table class="table">
         <thead>
             <tr>
                 <th>Id</th>
-                <th>Rate</th>
+                <th>Rate (%)</th>
                 <th>Effective_date</th>
                 <th>CreatedAt</th>
                 <th>actions</th>
@@ -19,7 +19,7 @@
         {% for vat_rate in vat_rates %}
             <tr>
                 <td>{{ vat_rate.id }}</td>
-                <td>{{ vat_rate.rate }}</td>
+                <td>{{ vat_rate.rate * 100 | number_format(2) }}</td>
                 <td>{{ vat_rate.effectiveDate ? vat_rate.effectiveDate|date('Y-m-d H:i:s') : '' }}</td>
                 <td>{{ vat_rate.createdAt ? vat_rate.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                 <td>

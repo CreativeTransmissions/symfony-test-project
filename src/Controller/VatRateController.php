@@ -30,6 +30,25 @@ class VatRateController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $vatRateRepository = $entityManager->getRepository(VatRate::class);
+            $vatRateCount = $vatRateRepository->count([]);
+
+            if($vatRateCount===0) {
+                // check if new vat rate is earlier than today
+                $effectiveDate = $vatRate->getEffectiveDate();
+                $today = new \DateTime();
+
+                if($effectiveDate > $today) {
+                    $this->addFlash('error', 'First VAT rate effective date cannot be in the future');
+                    return $this->redirectToRoute('app_vat_rate_new');
+                }                
+            }
+          
+            $vatRate->setCreatedAt(new \DateTime());
+            $inputPercentage = $vatRate->getRate();
+            $decimalPercentage = $inputPercentage / 100;
+            $vatRate->setRate($decimalPercentage);
             $entityManager->persist($vatRate);
             $entityManager->flush();
 
