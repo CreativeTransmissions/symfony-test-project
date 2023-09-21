@@ -145,4 +145,16 @@ class TransactionController extends AbstractController
     
         return $response;
     }
+
+    #[Route('/clear', name: 'app_transaction_clear', methods: ['GET', 'POST'])]
+    public function clear(EntityManagerInterface $entityManager): Response
+    {
+        $connection = $entityManager->getConnection();
+        $platform   = $connection->getDatabasePlatform();
+    
+        $connection->executeStatement($platform->getTruncateTableSQL('transaction', false));
+    
+        return $this->redirectToRoute('app_transaction_index', [], Response::HTTP_SEE_OTHER);
+    }
+       
 }
