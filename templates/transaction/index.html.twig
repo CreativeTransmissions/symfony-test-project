@@ -9,8 +9,11 @@
         <thead>
             <tr>
                 <th>Id</th>
-                <th>Amount</th>
-                <th>Gross</th>
+                <th>Input</th>
+                <th>VAT Included</th>
+                <th>Net Amount</th>    
+                <th>VAT Excluded</th>
+                <th>Gross Amount</th>                             
                 <th>CreatedAt</th>
                 <th>actions</th>
             </tr>
@@ -19,11 +22,16 @@
         {% for transaction in transactions %}
             <tr>
                 <td>{{ transaction.id }}</td>
+
+                <td>{{ transaction.vatRate->rate }}</td>
+
                 <td>{{ transaction.amount }}</td>
-                <td>{{ transaction.amountExVat }}</td>
+
                 <td>{{ transaction.amountIncVat }}</td>
-                <td>{{ transaction.vatAmountExVat }}</td>
                 <td>{{ transaction.vatAmountIncVat }}</td>
+
+                <td>{{ transaction.vatAmountExVat }}</td>
+                <td>{{ transaction.amountExVat }}</td>
 
 
                 <td>{{ transaction.createdAt ? transaction.createdAt|date('Y-m-d H:i:s') : '' }}</td>

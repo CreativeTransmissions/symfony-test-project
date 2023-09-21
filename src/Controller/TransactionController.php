@@ -7,11 +7,13 @@ use App\Entity\VatRate;
 use App\Form\TransactionType;
 use App\Repository\TransactionRepository;
 use App\Repository\VatRateRepository;
+use App\Service\VatCalculatorService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Psr\Log\LoggerInterface;
 
 #[Route('/transaction')]
 class TransactionController extends AbstractController
@@ -25,7 +27,7 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/new', name: 'app_transaction_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, LoggerInterface $logger): Response
     {
         $transaction = new Transaction();
         $form = $this->createForm(TransactionType::class, $transaction);
@@ -34,22 +36,39 @@ class TransactionController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             
             $vatRateRepository = $entityManager->getRepository(VatRate::class);
-
             $vatRates = $vatRateRepository->findAll();
+        //    $logger->info($vatRates[0]);
+
+            $latestVatRate =$vatRates[0];
+            //$logger->info("latestVatRate: {$latestVatRate}");            
+            $VatCalculatorService = new VatCalculatorService();
 
             $transaction->setCreatedAt(new \DateTime());
 
+            $inputAmount = $transaction->getAmount();
+            $latestVatRate = 0.2;
+            // calculate vat for incluse and exclusive amounts
+            $vatAmountExVat = $VatCalculatorService->calcVatAmountExVat($inputAmount,$latestVatRate);
+            $vatAmountIncVat = $VatCalculatorService->calcVatAmountIncVat($inputAmount,$latestVatRate);
+
+            //calculate amount after VAT is removed
+            $transactionAmountIncVat = $VatCalculatorService->calcAmountIncVat($inputAmount,$vatAmountIncVat);
+
+            //caculate amount after VAT is added
+            $transactionAmountExVat = $VatCalculatorService->calcAmountExVat($inputAmount,$vatAmountExVat);
+            
+            /*
             $latestVatRate = $vatRateRepository->findLatest();
             $latestVatRateId = $latestVatRate->getId();
             $latestVatRatePercentage = $latestVatRate->getRate();
             $transactionAmount = $transaction->getAmount();
-
+            */
             
-            $transaction->setAmountExVat($this->calcAmountExVat($transactionAmount, $latestVatRatePercentage));
-            $transaction->setAmountIncVat(100);
-            $transaction->setVatAmountExVat(100);
-            $transaction->setVatAmountIncVat(100);
-            $transaction->setVatRate($latestVatRate);
+            $transaction->setAmountExVat($transactionAmountExVat);
+            $transaction->setAmountIncVat($transactionAmountIncVat);
+            $transaction->setVatAmountExVat($vatAmountExVat);
+            $transaction->setVatAmountIncVat($vatAmountIncVat);
+            $transaction->setVatRate($vatRates[0]);
 
             $entityManager->persist($transaction);
             $entityManager->flush();
@@ -61,24 +80,6 @@ class TransactionController extends AbstractController
             'transaction' => $transaction,
             'form' => $form,
         ]);
-    }
-
-    private function calcVatAmountExVat(){
-        // amount of vat when vat is excluded from original amount
-
-    } 
-    private function calcAmountExVat()
-    {
-        // resulting amount when vat is excluded from original amount
-    }
-
-    private function calcVatAmountIncVat(){
-        // amount of vat when vat is included in original amount
-    } 
-    private function calcAmountIncVat()
-    {
-        // resuilting amount when vat is included in original amount
-
     }
 
     #[Route('/{id}', name: 'app_transaction_show', methods: ['GET'])]
