@@ -63,12 +63,16 @@
 
 ---
 
-## Setup Process
+## Setup Process / Usage
 - Pull main branch of GitHub Repo
 - Install dependencies
 - Run Migrations
 - Visit Website root.
 - As the database is empty initially you will be prompted to add a VAT rate first with an effective date earlier than the current date so that all information is available for the calculation.
+
+## Routes available
+- transaction 
+- vat/rate
 
 ## Use of AI In This Project
 
