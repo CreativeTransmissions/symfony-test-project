@@ -74,6 +74,10 @@
 - transaction 
 - vat/rate
 
+## Potential Improvements Out of Scope for Current Task
+- User authentication for Admin to adjust VAT Rates and regular users as this is financial information
+- Implement the UI in Vue, Svelte or React with JSON routes for the controller methods
+
 ## Use of AI In This Project
 
 While code generation was not used for this project outside of the symfony CLI tools, I used ChatGPT to quickly provide me with information specific to Symfony and it's configuration files as it is a framework I had not used before.
