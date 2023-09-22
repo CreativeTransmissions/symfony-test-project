@@ -4,7 +4,14 @@
 
 {% block body %}
     <h1>VAT Rates</h1>
-
+    {% for label, messages in app.flashes %}
+        {% set bootstrapClass = label == 'error' ? 'danger' : label %}
+        <div class="alert alert-{{ bootstrapClass }}">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endfor %}
     <table class="table">
         <thead>
             <tr>

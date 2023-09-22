@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\VatRate;
 use App\Form\VatRateType;
+use App\Entity\Transaction;
 use App\Repository\VatRateRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
