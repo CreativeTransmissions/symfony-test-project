@@ -90,6 +90,15 @@ class VatRateController extends AbstractController
     #[Route('/{id}', name: 'app_vat_rate_delete', methods: ['POST'])]
     public function delete(Request $request, VatRate $vatRate, EntityManagerInterface $entityManager): Response
     {
+
+        // check for related transaction records
+        $transactionRepository = $entityManager->getRepository(Transaction::class);
+        $transactionCount = $transactionRepository->count(['vat_rate' => $vatRate]);
+        if($transactionCount > 0) {
+            $this->addFlash('error', 'Cannot delete VAT rate with related transactions');
+            return $this->redirectToRoute('app_vat_rate_index');
+        }
+
         if ($this->isCsrfTokenValid('delete'.$vatRate->getId(), $request->request->get('_token'))) {
             $entityManager->remove($vatRate);
             $entityManager->flush();
